@@ -1,0 +1,239 @@
+#include "normal_input.h"
+
+#define CHUNK_SIZE 5
+#define WORD_SIZE 1
+#define IN 1
+#define OUT 0
+
+static char *original_string;
+static int amount;
+
+static char argv_splitter;
+static char argv_option;
+static int argv_N_threshold;
+static int argv_use = 1;
+
+int choice(char);
+void we_dont_like_long_words_here(int, char **);
+void sort_words(char **);
+int compare_words(char *, char *);
+int measure_word(char *);
+char **get_words(char *, char);
+void reverse(char **);
+void print_words(char **);
+
+int main(int argc, char *argv[]) {
+    char *splitter;
+    int c,i;
+
+    if (argc > 2) {
+        if (sscanf (argv[1], "%c", &argv_splitter) != 1) {
+            printf ("Invalid argv input.\n");
+            return 0;
+        }
+
+        if (sscanf (argv[2], "%c", &argv_option) != 1 || argv_option < '1' || argv_option > '3') {
+            printf ("Invalid argv input.\n");
+            return 0;
+        }
+
+        if (argv_option == '3' && argc != 4) {
+            printf ("Invalid argv input.\n");
+            return 0;
+        }
+
+        if (argc >= 4) {
+            if (argv_option != '3' || sscanf (argv[3], "%d", &argv_N_threshold) != 1) {
+                printf ("Invalid argv input.\n");
+                return 0;
+            }
+        }
+    } else
+        argv_use = 0;
+    printf("\nEnter the string: ");
+    if (!(original_string = get_line(CHUNK_SIZE))) { 
+        puts("\nThe string is empty.");
+        return 1;
+    }
+    do {
+        if (argv_use)
+            splitter = &argv_splitter;
+        else {
+            printf("\nEnter the splitter ('q' -- to quit): ");
+            if (!(splitter = get_char(1)))
+                return 1;
+        }
+    } while (choice(*splitter));
+    free(original_string);
+    return 0;
+}
+
+int choice(char splitter) {
+    char **a_bag_of_words;
+    char *option;
+    int *N;
+    int i;
+
+    if (splitter == 'q')
+        return 0;
+    amount = 0;
+    if (!(a_bag_of_words = get_words(original_string, splitter))) {
+        printf("\nThere're no words.");
+        return 0;
+    }
+    print_words(a_bag_of_words);
+    printf("\nSelect one of the options: \n"
+        "[1] -- sort the array of words in lexico-graphical ascending order.\n"
+        "[2] -- sort the array of words in lexico-graphical descending order.\n"
+        "[3] -- delete words from array, the length of which is more than N characters.\n");
+    do {
+        if (argv_use)
+            option = &argv_option;
+        else {
+            if (!(option = get_char(1)))
+                return 0;
+            if (*option != '1' && *option != '2' && *option != '3')
+                printf("\n'%c' option does not exist. Choose an existing one: ", *option);
+        }
+    } while (*option != '1' && *option != '2' && *option != '3');
+    switch (*option) {
+        case '1':
+            sort_words(a_bag_of_words);
+            break;
+        case '2':
+            sort_words(a_bag_of_words);
+            reverse(a_bag_of_words);
+            break;
+        case '3':
+            if (argv_use)
+                we_dont_like_long_words_here(argv_N_threshold, a_bag_of_words);
+            else {
+                printf("\nEnter the N threshold: ");
+                if (!(N = get_int(1)))
+                    return 0;
+                we_dont_like_long_words_here(*N, a_bag_of_words);
+            }
+            break;
+    }
+    if (argv_use)
+        argv_use = 0;
+    print_words(a_bag_of_words);
+    for (i = 0; i < amount; i++)
+        free(*(a_bag_of_words + i));
+    if (amount)
+        free(a_bag_of_words);
+    return 1;
+}
+
+void we_dont_like_long_words_here(int limit, char **collection) {
+    int i, j;
+
+    for (i = 0; i < amount; i++)
+        if (measure_word(collection[i]) > limit) {
+            free(collection[i]);
+            amount--;
+            for (j = i--; j < amount; j++)
+                collection[j] = collection[j + 1];
+        }
+    collection = (char **) realloc(collection, amount * sizeof(char*));
+}
+
+void sort_words(char **collection) {
+    int i, j;
+    char *tmp_word;
+
+    for (i = 0; i < amount - 1; i++)
+        for (j = 0; j < amount - i - 1; j++)
+            if (compare_words(collection[j], collection[j + 1]) > 0) {
+                tmp_word = collection[j];
+                collection[j] = collection[j + 1];
+                collection[j + 1] = tmp_word;
+            }
+}
+
+int compare_words(char *first, char *second) {
+    for (; *first == *second; first++, second++)
+        if (*first == '\0')
+            return 0;
+    return *first - *second;
+}
+
+int measure_word(char *word) {
+    int length;
+
+    for (length = 0; *word++; length++);
+    return length;
+}
+
+char **get_words(char *the_string, char splitter) {
+    int c, state = OUT, length = 0; 
+    int word_size = WORD_SIZE, chunk_size = CHUNK_SIZE;
+    char *word = NULL;
+    char **collection = (char **) malloc(CHUNK_SIZE * sizeof(char *));
+
+    while (c = *the_string++) {
+        if (c == splitter && word) {
+            state = OUT;
+            word = (char *) realloc(word, (length + 1) * sizeof(char));
+            word[length] = '\0';
+            if (amount == chunk_size) {
+                chunk_size *= 2;
+                collection = (char **) realloc(collection, chunk_size * sizeof(char *));
+            }
+            collection[amount++] = word;
+            length = 0;
+            word = NULL;
+        } else if (c != splitter) {
+            if (state == OUT) {
+                word = (char *) malloc(word_size * sizeof(char));
+                state = IN;
+            }
+            if (length == word_size) {
+                word_size *= 2;
+                word = (char *) realloc(word, word_size * sizeof(char));
+            }
+            word[length++] = c;
+        }
+    }
+    if (state) {
+        word = (char *) realloc(word, (length + 1) * sizeof(char));
+        word[length] = '\0';
+            if (amount == chunk_size) {
+                chunk_size *= 2;
+                collection = (char **) realloc(collection, chunk_size * sizeof(char *));
+            }
+        collection[amount++] = word;
+    }
+    if (!amount)
+        return NULL;
+    return (char **) realloc(collection, amount * sizeof(char *)); 
+}
+
+void reverse(char **collection) {
+    int start = 0, end = amount - 1;
+    char *tmp_word;
+
+    while (start < end) {
+        tmp_word = collection[start];
+        collection[start++] = collection[end];
+        collection[end--] = tmp_word;
+    }
+}
+
+void print_words(char **collection) {
+    int i; 
+    char *word;
+
+    printf("\n[");
+    for (i = 0; i < amount; i++) {
+        word = collection[i];
+        printf("\"");
+        while (*word)
+            putchar(*word++);
+        if (i == amount - 1)
+            printf("\"");
+        else
+            printf("\", ");
+    }
+    printf("].\n");
+}
