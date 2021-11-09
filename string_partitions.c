@@ -13,7 +13,7 @@ static char argv_option;
 static int argv_N_threshold;
 static int argv_use = 1;
 
-int choice(char);
+int choice(char *);
 void we_dont_like_long_words_here(int, char **);
 void sort_words(char **);
 int compare_words(char *, char *);
@@ -31,23 +31,19 @@ int main(int argc, char *argv[]) {
             printf ("Invalid argv input.\n");
             return 0;
         }
-
         if (sscanf (argv[2], "%c", &argv_option) != 1 || argv_option < '1' || argv_option > '3') {
             printf ("Invalid argv input.\n");
             return 0;
         }
-
         if (argv_option == '3' && argc != 4) {
             printf ("Invalid argv input.\n");
             return 0;
         }
-
-        if (argc >= 4) {
+        if (argc >= 4)
             if (argv_option != '3' || sscanf (argv[3], "%d", &argv_N_threshold) != 1) {
                 printf ("Invalid argv input.\n");
                 return 0;
             }
-        }
     } else
         argv_use = 0;
     printf("\nEnter the string: ");
@@ -63,37 +59,42 @@ int main(int argc, char *argv[]) {
             if (!(splitter = get_char(1)))
                 return 1;
         }
-    } while (choice(*splitter));
+    } while (choice(splitter));
+    free(splitter);
+    splitter = NULL;
     free(original_string);
+    original_string = NULL;
     return 0;
 }
 
-int choice(char splitter) {
+int choice(char *splitter) {
     char **a_bag_of_words;
     char *option;
     int *N;
     int i;
 
-    if (splitter == 'q')
+    if (*splitter == 'q')
         return 0;
     amount = 0;
-    if (!(a_bag_of_words = get_words(original_string, splitter))) {
+    if (!(a_bag_of_words = get_words(original_string, *splitter))) {
         printf("\nThere're no words.");
-        return 0;
+        if (argv_use)
+            argv_use = 0;
+        return 1;
     }
     print_words(a_bag_of_words);
-    printf("\nSelect one of the options: \n"
-        "[1] -- sort the array of words in lexico-graphical ascending order.\n"
-        "[2] -- sort the array of words in lexico-graphical descending order.\n"
-        "[3] -- delete words from array, the length of which is more than N characters.\n");
     do {
         if (argv_use)
             option = &argv_option;
         else {
+            printf("\nSelect one of the options: \n"
+                "[1] -- sort the array of words in lexico-graphical ascending order.\n"
+                "[2] -- sort the array of words in lexico-graphical descending order.\n"
+                "[3] -- delete words from array, the length of which is more than N characters.\n");
             if (!(option = get_char(1)))
                 return 0;
             if (*option != '1' && *option != '2' && *option != '3')
-                printf("\n'%c' option does not exist. Choose an existing one: ", *option);
+                printf("\n[%c] option does not exist. Choose an existing one: ", *option);
         }
     } while (*option != '1' && *option != '2' && *option != '3');
     switch (*option) {
@@ -112,16 +113,26 @@ int choice(char splitter) {
                 if (!(N = get_int(1)))
                     return 0;
                 we_dont_like_long_words_here(*N, a_bag_of_words);
+                free(N);
+                N = NULL;
             }
             break;
     }
+    print_words(a_bag_of_words);
     if (argv_use)
         argv_use = 0;
-    print_words(a_bag_of_words);
-    for (i = 0; i < amount; i++)
-        free(*(a_bag_of_words + i));
-    if (amount)
+    free(option);
+    option = NULL;
+    free(splitter);
+    splitter = NULL;
+    for (i = 0; i < amount; i++) {
+        free(a_bag_of_words[i]);
+        a_bag_of_words[i] = NULL;
+    }
+    if (amount) {
         free(a_bag_of_words);
+        a_bag_of_words = NULL;
+    }
     return 1;
 }
 
@@ -131,6 +142,7 @@ void we_dont_like_long_words_here(int limit, char **collection) {
     for (i = 0; i < amount; i++)
         if (measure_word(collection[i]) > limit) {
             free(collection[i]);
+            collection[i] = NULL;
             amount--;
             for (j = i--; j < amount; j++)
                 collection[j] = collection[j + 1];
@@ -176,26 +188,26 @@ char **get_words(char *the_string, char splitter) {
             state = OUT;
             word = (char *) realloc(word, (length + 1) * sizeof(char));
             word[length] = '\0';
-            if (amount == chunk_size) {
+            if (amount == chunk_size) { /* Not enough space in the collection for the next word */
                 chunk_size *= 2;
                 collection = (char **) realloc(collection, chunk_size * sizeof(char *));
             }
-            collection[amount++] = word;
+            collection[amount++] = word; /* Add the word in the collection */
             length = 0;
             word = NULL;
         } else if (c != splitter) {
-            if (state == OUT) {
+            if (state == OUT) { /* Create a new word */
                 word = (char *) malloc(word_size * sizeof(char));
                 state = IN;
             }
-            if (length == word_size) {
+            if (length == word_size) { /* Not enough space in the word for the next character */
                 word_size *= 2;
                 word = (char *) realloc(word, word_size * sizeof(char));
             }
-            word[length++] = c;
+            word[length++] = c; /* Add the character in the word */
         }
     }
-    if (state) {
+    if (state == IN) { /* Process the last word in the string */
         word = (char *) realloc(word, (length + 1) * sizeof(char));
         word[length] = '\0';
             if (amount == chunk_size) {
@@ -204,7 +216,7 @@ char **get_words(char *the_string, char splitter) {
             }
         collection[amount++] = word;
     }
-    if (!amount)
+    if (!amount) /* no words found */
         return NULL;
     return (char **) realloc(collection, amount * sizeof(char *)); 
 }

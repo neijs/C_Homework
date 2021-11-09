@@ -117,19 +117,30 @@ char *get_char(int amount) {
     int value;
     char *values = (char *) malloc(amount * sizeof(char));
 
-    if (!EOF_reached)
+    if (!EOF_reached) {
+        printf("(If you would like to input a space, type ' '): ");
         while (1) {
             seen_character = 0, value = -1;
             while ((c = getch()) == ' '); /* skip white spaces */
             ungetch(c);
             while ((c = getch()) != EOF && c != '\n' && c != ' ' && c != '\t') {
+                if (c == '\'') /* Process the space character */
+                    if ((c = getch()) != ' ') {
+                        ungetch(c);
+                        c = '\'';
+                    } else
+                        if ((c = getch()) != '\'') {
+                            ungetch(c);
+                            ungetch(' ');
+                            c = '\'';
+                        } else 
+                            value = ' ';
                 if (seen_character)
                     invalid_input = 1;
                 if (value == -1)
                     value = c;
                 seen_character = 1;
-
-            }
+            } /* while */
             if (seen_character && !invalid_input) {
                 if (recieved < amount)
                     values[recieved] = value;
@@ -139,9 +150,9 @@ char *get_char(int amount) {
                 if (recieved == amount && !invalid_input) {
                     if (c == EOF)
                         EOF_reached = 1;
-                    return values;
+                    return values; /* If everything was fine, we would left here */
                 }
-                if (invalid_input)
+                if (invalid_input) /* Tell the user where are they wrong */
                     printf("\nerror: invalid input. ");
                 else if (recieved < amount)
                     printf("\nerror: not enough input. ");
@@ -158,6 +169,7 @@ char *get_char(int amount) {
                 }
             }
         }
+    }
     free(values);
     puts("\nerror: No input available. The EOF is reached.");
     return NULL;
@@ -174,14 +186,14 @@ char *get_line(int chunk_size) {
                 chunk_size *= 2;
                 the_string = (char *) realloc(the_string, chunk_size * sizeof(char));
             }
-            *(the_string + count++) = c;
+            the_string[count++] = c;
         }
         if (c == EOF)
             EOF_reached = 1;
         if (!seen_character)
             return NULL;
         the_string = (char *) realloc(the_string, (count + 1) * sizeof(char));
-        *(the_string + count) = '\0';
+        the_string[count] = '\0';
         return the_string;
     }
     free(the_string);

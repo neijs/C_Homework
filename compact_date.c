@@ -27,6 +27,8 @@ int main() {
     } while (data_check(date[0], date[1], date[2])); /* Reapeat until the user enters the correct date, AND skip data_check if the flag is raised */
     date_to_compact(date[0], date[1], date[2]); /* Store the date in a compact form */
     while (choice()); /* Work until the user wills to exit */
+    free(date);
+    date = NULL;
     return 0;
 }
 
@@ -79,49 +81,67 @@ void print_year() {
 
 /* Change the value of the day */
 int change_day() {
-    short *day;
+    short *day = NULL;
     short month, year;
 
     compact_to_date(NULL, &month, &year); /* Get stored values of month and year */
     do {
+        if (day) {
+            free(day);
+            day = NULL;
+        }
         printf("\nPlease enter the value of new day: ");
         if (!(day = get_short(1)))
             return 1;
     } while (data_check(*day, month, year)); /* Reapeat until the user enters the correct date, AND skip data_check if the flag is raised */
     date_to_compact(*day, month, year); /* Save the new date in the compact form */
     puts("\nThe day has been successfully changed!");
+    free(day);
+    day = NULL;
     return 0;
 }
 
 /* Change the value of the month */
 int change_month() {
-    short *month;
+    short *month = NULL;
     short day, year;
 
     compact_to_date(&day, NULL, &year); /* Get stored values of day and year */
      do {
+        if (month) {
+            free(month);
+            month = NULL;
+        }
         printf("\nPlease enter the value of new month: ");
         if (!(month = get_short(1)))
             return 1;
     } while (data_check(day, *month, year)); /* Reapeat until the user enters the correct date, AND skip data_check if the flag is raised */
     date_to_compact(day, *month, year); /* Save the new date in the compact form */
     puts("\nThe month has been successfully changed!");
+    free(month);
+    month = NULL;
     return 0;
 }
 
 /* Change the value of the year */
 int change_year() {
-    short *year;
+    short *year = NULL;
     short day, month;
 
     compact_to_date(&day, &month, NULL); /* Get stored values of day and month */
     do {
+        if (year) {
+            free(year);
+            year = NULL;
+        }
         printf("\nPlease enter the value of new year: ");
         if (!(year = get_short(1)))
             return 1;
     } while (data_check(day, month, *year)); /* Reapeat until the user enters the correct date, AND skip data_check if the flag is raised */
     date_to_compact(day, month, *year); /* Save the new date in the compact form */
     puts("\nThe year has been successfully changed!");
+    free(year);
+    year = NULL;
     return 0;
 }
 
@@ -164,23 +184,36 @@ int choice(void) {
             print_year();
             break;
         case '4':
-            if (change_day()) /* EOF was typed by the user. Exit the program */
+            if (change_day()) { /* EOF was typed by the user. Exit the program */
+                free(option);
+                option = NULL;
                 return 0;
+            }
             break;
         case '5':
-            if (change_month()) /* EOF was typed by the user. Exit the program */
+            if (change_month()) { /* EOF was typed by the user. Exit the program */
+                free(option);
+                option = NULL;
                 return 0;
+            }
             break;
         case '6':
-            if (change_year()) /* EOF was typed by the user. Exit the program */
+            if (change_year()) { /* EOF was typed by the user. Exit the program */
+                free(option);
+                option = NULL;             
                 return 0;
+            }
             break;
         case '7':
             print_compact();
             break;
         default:
-            return 0;
+            free(option);
+            option = NULL;
+            return 0; /* Stop */
     }
+    free(option);
+    option = NULL;
     return 1; /* Stay in the while loop, because the user is willing to continue */
 }
 
