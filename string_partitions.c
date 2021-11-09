@@ -61,25 +61,23 @@ int main(int argc, char *argv[]) {
         }
     } while (choice(splitter));
     free(splitter);
-    splitter = NULL;
     free(original_string);
-    original_string = NULL;
     return 0;
 }
 
 int choice(char *splitter) {
-    char **a_bag_of_words;
-    char *option;
-    int *N;
+    char **a_bag_of_words = NULL;
+    char *option = NULL;
+    int *N = NULL;
     int i;
 
     if (*splitter == 'q')
         return 0;
     amount = 0;
     if (!(a_bag_of_words = get_words(original_string, *splitter))) {
-        printf("\nThere're no words.");
         if (argv_use)
             argv_use = 0;
+        printf("\nThere're no words.");
         return 1;
     }
     print_words(a_bag_of_words);
@@ -87,6 +85,8 @@ int choice(char *splitter) {
         if (argv_use)
             option = &argv_option;
         else {
+            if (option)
+                free(option);
             printf("\nSelect one of the options: \n"
                 "[1] -- sort the array of words in lexico-graphical ascending order.\n"
                 "[2] -- sort the array of words in lexico-graphical descending order.\n"
@@ -114,25 +114,20 @@ int choice(char *splitter) {
                     return 0;
                 we_dont_like_long_words_here(*N, a_bag_of_words);
                 free(N);
-                N = NULL;
             }
             break;
     }
-    print_words(a_bag_of_words);
     if (argv_use)
         argv_use = 0;
-    free(option);
-    option = NULL;
-    free(splitter);
-    splitter = NULL;
-    for (i = 0; i < amount; i++) {
+    else { 
+        free(option);
+        free(splitter);
+    }
+    print_words(a_bag_of_words);
+    for (i = 0; i < amount; i++)
         free(a_bag_of_words[i]);
-        a_bag_of_words[i] = NULL;
-    }
-    if (amount) {
+    if (amount)
         free(a_bag_of_words);
-        a_bag_of_words = NULL;
-    }
     return 1;
 }
 
@@ -216,8 +211,10 @@ char **get_words(char *the_string, char splitter) {
             }
         collection[amount++] = word;
     }
-    if (!amount) /* no words found */
+    if (!amount) { /* no words found */
+        free(collection);
         return NULL;
+    } 
     return (char **) realloc(collection, amount * sizeof(char *)); 
 }
 

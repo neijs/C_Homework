@@ -45,6 +45,7 @@ double *get_double(int amount) {
                     printf("\nerror: extra input. ");
                 if (c == EOF) {
                     puts("The EOF is reached");
+                    free(values);
                     return NULL;
                 } else {
                     printf("Try again: ");
@@ -98,6 +99,7 @@ short *get_short(int amount) {
                     printf("\nerror: extra input. ");
                 if (c == EOF) {
                     puts("The EOF is reached");
+                    free(values);
                     return NULL;
                 } else {
                     printf("Try again: ");
@@ -160,6 +162,7 @@ char *get_char(int amount) {
                     printf("\nerror: extra input. ");
                 if (c == EOF) {
                     puts("The EOF is reached");
+                    free(values);
                     return NULL;
                 } else {
                     printf("Try again: ");
@@ -190,8 +193,10 @@ char *get_line(int chunk_size) {
         }
         if (c == EOF)
             EOF_reached = 1;
-        if (!seen_character)
+        if (!seen_character) {
+            free(the_string);
             return NULL;
+        }
         the_string = (char *) realloc(the_string, (count + 1) * sizeof(char));
         the_string[count] = '\0';
         return the_string;
@@ -240,6 +245,7 @@ int *get_int(int amount) {
                     printf("\nerror: extra input. ");
                 if (c == EOF) {
                     puts("The EOF is reached");
+                    free(values);
                     return NULL;
                 } else {
                     printf("Try again: ");
