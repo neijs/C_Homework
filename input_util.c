@@ -6,6 +6,11 @@ double *get_double(int amount) {
     double *values = (double *) malloc(amount * sizeof(double));
 
     if (!EOF_reached)
+        if (values == NULL) {
+            printf("\nerror: Couldn't allocate the memory.");
+            free(values);
+            return NULL;
+        }
         while (1) {
             seen_digit = 0, value = 0.0, power = 1.0;
             while ((c = getch()) == ' '); /* skip white spaces */
@@ -66,6 +71,11 @@ short *get_short(int amount) {
     short *values = (short *) malloc(amount * sizeof(short));
 
     if (!EOF_reached)
+        if (values == NULL) {
+            printf("\nerror: Couldn't allocate the memory.");
+            free(values);
+            return NULL;
+        }
         while (1) {
             seen_digit = 0, value = 0;
             while ((c = getch()) == ' '); /* skip white spaces */
@@ -120,6 +130,11 @@ char *get_char(int amount) {
     char *values = (char *) malloc(amount * sizeof(char));
 
     if (!EOF_reached) {
+        if (values == NULL) {
+            printf("\nerror: Couldn't allocate the memory.");
+            free(values);
+            return NULL;
+        }
         printf("(If you would like to input a space, type ' '): ");
         while (1) {
             seen_character = 0, value = -1;
@@ -183,11 +198,21 @@ char *get_line(int chunk_size) {
     char *the_string = (char *) malloc(chunk_size * sizeof(char));
 
     if (!EOF_reached) {
+        if (the_string == NULL) {
+            printf("\nerror: Couldn't allocate the memory.");
+            free(the_string);
+            return NULL;
+        }
         while ((c = getchar()) != '\n' && c != EOF) {
             seen_character = 1;
             if (count == chunk_size) {
                 chunk_size *= 2;
                 the_string = (char *) realloc(the_string, chunk_size * sizeof(char));
+                if (the_string == NULL) {
+                    printf("\nerror: Couldn't allocate the memory.");
+                    free(the_string);
+                    return NULL;
+                }
             }
             the_string[count++] = c;
         }
@@ -198,6 +223,11 @@ char *get_line(int chunk_size) {
             return NULL;
         }
         the_string = (char *) realloc(the_string, (count + 1) * sizeof(char));
+        if (the_string == NULL) {
+            printf("\nerror: Couldn't allocate the memory.");
+            free(the_string);
+            return NULL;
+        }
         the_string[count] = '\0';
         return the_string;
     }
@@ -212,6 +242,11 @@ int *get_int(int amount) {
     int *values = (int *) malloc(amount * sizeof(int));
     
     if (!EOF_reached)
+        if (values == NULL) {
+            printf("\nerror: Couldn't allocate the memory.");
+            free(values);
+            return NULL;
+        }
         while (1) {
             seen_digit = 0, value = 0;
             while ((c = getch()) == ' '); /* skip white spaces */

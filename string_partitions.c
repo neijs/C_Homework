@@ -14,7 +14,7 @@ static int argv_N_threshold;
 static int argv_use = 1;
 
 int choice(char *);
-void we_dont_like_long_words_here(int, char **);
+int we_dont_like_long_words_here(int, char **);
 void sort_words(char **);
 int compare_words(char *, char *);
 int measure_word(char *);
@@ -106,13 +106,15 @@ int choice(char *splitter) {
             reverse(a_bag_of_words);
             break;
         case '3':
-            if (argv_use)
-                we_dont_like_long_words_here(argv_N_threshold, a_bag_of_words);
-            else {
+            if (argv_use) {
+                if (we_dont_like_long_words_here(argv_N_threshold, a_bag_of_words))
+                    return 0;
+            } else {
                 printf("\nEnter the N threshold: ");
                 if (!(N = get_int(1)))
                     return 0;
-                we_dont_like_long_words_here(*N, a_bag_of_words);
+                if (we_dont_like_long_words_here(*N, a_bag_of_words))
+                    return 0;
                 free(N);
             }
             break;
@@ -131,7 +133,7 @@ int choice(char *splitter) {
     return 1;
 }
 
-void we_dont_like_long_words_here(int limit, char **collection) {
+int we_dont_like_long_words_here(int limit, char **collection) {
     int i, j;
 
     for (i = 0; i < amount; i++)
@@ -143,6 +145,12 @@ void we_dont_like_long_words_here(int limit, char **collection) {
                 collection[j] = collection[j + 1];
         }
     collection = (char **) realloc(collection, amount * sizeof(char*));
+    if (collection == NULL && amount != 0) {
+        printf("\nerror: Couldn't allocate the memory.");
+        free(collection);
+        return 1;
+    }
+    return 0;
 }
 
 void sort_words(char **collection) {
@@ -178,14 +186,29 @@ char **get_words(char *the_string, char splitter) {
     char *word = NULL;
     char **collection = (char **) malloc(CHUNK_SIZE * sizeof(char *));
 
+    if (collection == NULL) {
+        printf("\nerror: Couldn't allocate the memory.");
+        free(collection);
+        return NULL;
+    }
     while (c = *the_string++) {
         if (c == splitter && word) {
             state = OUT;
             word = (char *) realloc(word, (length + 1) * sizeof(char));
+            if (word == NULL) {
+                printf("\nerror: Couldn't allocate the memory.");
+                free(word);
+                return NULL;
+            }
             word[length] = '\0';
             if (amount == chunk_size) { /* Not enough space in the collection for the next word */
                 chunk_size *= 2;
                 collection = (char **) realloc(collection, chunk_size * sizeof(char *));
+                if (collection == NULL) {
+                    printf("\nerror: Couldn't allocate the memory.");
+                    free(collection);
+                    return NULL;
+                }
             }
             collection[amount++] = word; /* Add the word in the collection */
             length = 0;
@@ -193,21 +216,41 @@ char **get_words(char *the_string, char splitter) {
         } else if (c != splitter) {
             if (state == OUT) { /* Create a new word */
                 word = (char *) malloc(word_size * sizeof(char));
+                if (word == NULL) {
+                    printf("\nerror: Couldn't allocate the memory.");
+                    free(word);
+                    return NULL;
+                }
                 state = IN;
             }
             if (length == word_size) { /* Not enough space in the word for the next character */
                 word_size *= 2;
                 word = (char *) realloc(word, word_size * sizeof(char));
+                if (word == NULL) {
+                    printf("\nerror: Couldn't allocate the memory.");
+                    free(word);
+                    return NULL;
+                }
             }
             word[length++] = c; /* Add the character in the word */
         }
     }
     if (state == IN) { /* Process the last word in the string */
         word = (char *) realloc(word, (length + 1) * sizeof(char));
+        if (word == NULL) {
+            printf("\nerror: Couldn't allocate the memory.");
+            free(word);
+            return NULL;
+        }
         word[length] = '\0';
             if (amount == chunk_size) {
                 chunk_size *= 2;
                 collection = (char **) realloc(collection, chunk_size * sizeof(char *));
+                if (collection == NULL) {
+                    printf("\nerror: Couldn't allocate the memory.");
+                    free(collection);
+                    return NULL;
+                }
             }
         collection[amount++] = word;
     }
@@ -215,7 +258,13 @@ char **get_words(char *the_string, char splitter) {
         free(collection);
         return NULL;
     } 
-    return (char **) realloc(collection, amount * sizeof(char *)); 
+    collection = (char **) realloc(collection, amount * sizeof(char *)); 
+    if (collection == NULL) {
+        printf("\nerror: Couldn't allocate the memory.");
+        free(collection);
+        return NULL;
+    }
+    return collection;
 }
 
 void reverse(char **collection) {

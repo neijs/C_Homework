@@ -7,6 +7,12 @@ int main (int argc, char **argv) {
     int *closed = (int *) malloc(sizeof(int) * size);
     FILE **fa = (FILE **) malloc(sizeof(FILE *) * size);
 
+    if (!buf || !closed || !fa) {
+        free(buf);
+        free(closed);
+        free(fa);
+        return 1;
+    }
     for (i = 0; i < size; i++) {
         fa[i] = fopen(argv[i + 1], "r");
         if (!fa[i])
