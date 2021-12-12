@@ -1,0 +1,633 @@
+There is a hole at the bottom of math
+00:04
+a hole that  means we will never know everything with certainty
+00:09
+There will always be true statements that  cannot be proven.
+00:14
+Now no one knows what those statements are exactly
+00:17
+but they could be something like the Twin Prime Conjecture.
+00:20
+Twin primes are prime numbers that are separated  by just one number like 11 and 13, or 17 and 19.
+00:27
+And as you go up the number line primes occur less  frequently and twin primes are rarer still.
+00:34
+But the Twin Prime Conjecture is that there are infinitely  many twin primes.
+00:38
+You never run out them.
+00:41
+As of right now no one has proven this conjecture true or false.
+00:46
+But the crazy thing is this: we may never know
+00:51
+because what has been proven is that in any system  of mathematics where you can do basic arithmetic
+00:57
+there will always be true statements  that are impossible to prove.
+01:03
+That is life.
+01:07
+Specifically this is the Game of Life,  created in 1970 by mathematician John Conway
+01:13
+Sadly he passed away in 2020 from covet  19. Conway's game of life is played on an
+01:20
+infinite grid of square cells each of which is  either live or dead and there are only two rules
+01:28
+one any dead cell with exactly three neighbors  comes to life and two any living cell with less
+01:35
+than two or more than three neighbors dies once  you've set up the initial arrangement of cells
+01:42
+the two rules are applied to create the  next generation and then the one after that
+01:46
+and the one after that and so on it's totally  automatic Conway called it a zero player game
+01:53
+but even though the rules are simple the game  itself can generate a wide variety of behavior
+01:59
+some patterns are stable once they arise they  never change others oscillate back and forth in a
+02:05
+loop a few can travel across the grid forever like  this glider here many patterns just fizzle out
+02:18
+but a few keep growing forever  they keep generating new cells
+02:25
+now you would think that given the  simple rules of the game you could just
+02:28
+look at any pattern and determine what will happen  to it will it eventually reach a steady state
+02:34
+or will it keep growing without limit but it  turns out this question is impossible to answer
+02:42
+the ultimate fate of a pattern in Conway's  game of life is undecidable meaning there
+02:48
+is no possible algorithm that is guaranteed to  answer the question in a finite amount of time
+02:54
+you could always just try running the pattern and  see what happens i mean the rules of the game are
+02:58
+a kind of algorithm after all but that's not  guaranteed to give you an answer either because
+03:04
+even if you run it for a million generations  you won't be able to say whether it'll last
+03:08
+forever or just 2 million generations  or a billion or a googleplex
+03:14
+is there something special about the game of life  that makes it undecidable nope there are actually
+03:21
+a huge number of systems that are undecidable  like Wang tiles quantum physics airline ticketing
+03:28
+systems and even magic the gathering to understand  how undecidability shows up in all of these places
+03:36
+we have to go back 150 years to a  full-blown revolt in mathematics
+03:45
+in 1874 Georg Cantor a german mathematician  published a paper that launched a new branch
+03:51
+of mathematics called set theory a set is  just a well-defined collection of things
+03:57
+so the two shoes on your feet are a set as are  all the planetariums in the world there's a set
+04:03
+with nothing in it the empty set and a set with  everything in it now Cantor was thinking about
+04:09
+sets of numbers like natural numbers positive  integers like 1 2 3 4 and so on and real numbers
+04:17
+which include fractions like a third five  halves and also irrational numbers like pi e
+04:23
+and the square root of two basically any number  that can be represented as an infinite decimal
+04:30
+he wondered are there more natural numbers  or more real numbers between zero and one
+04:38
+the answer might seem obvious there are  an infinite number of each so both sets
+04:43
+should be the same size but to check this logic  canter imagined writing down an infinite list
+04:49
+matching up each natural number on one side with  a real number between zero and one on the other
+04:54
+now since each real number is an infinite decimal  there is no first one so we can just write them
+05:00
+down in any random order the key is to make sure  we get them all with no duplicates and line them
+05:06
+up one to one with an integer if we can do that  with none left over well then we know that the
+05:13
+set of natural numbers and the set of real numbers  between 0 and 1 are the same size so assume we've
+05:20
+done that we have a complete infinite list with  each integer acting like an index number a unique
+05:26
+identifier for each real number on the list now  Cantor says start writing down a new real number
+05:34
+and the way we're going to do it is by taking the  first digit of the first number and adding one
+05:40
+then take the second digit of the second number  and again add one take the third digit of the
+05:45
+third number add one and keep doing this all the  way down the list if the digit is a nine just roll
+05:51
+it back to an eight and by the end of this process  you'll have a real number between zero and one but
+05:58
+here's the thing this number won't appear anywhere  on our list it's different from the first number
+06:05
+in the first decimal place different from the  second number in the second decimal place and
+06:09
+so on down the line it has to be different from  every number on the list by at least one digit
+06:15
+the number on the diagonal that's why this  is called Cantor's diagonalization proof
+06:22
+it shows there must be more real numbers between  0 and 1 then there are natural numbers extending
+06:29
+out to infinity so not all infinities are the same  size Cantor call these countable and uncountable
+06:38
+infinities respectively and in fact there are many  more uncountable infinities which are even larger
+06:44
+now Cantor's work was just the latest blow to  mathematics for 2000 years Euclid's elements
+06:49
+were considered the bedrock of the discipline but  at the turn of the 19th century Lobashevsky and
+06:55
+gauss discovered non-Euclidean geometries and  this prompted mathematicians to examine more
+07:00
+closely the foundations of their field and they  did not like what they saw the idea of a limit
+07:07
+at the heart of calculus turned out to be poorly  defined and now Cantor was showing that infinity
+07:13
+itself was much more complex than anyone had  imagined in all this upheaval mathematics
+07:19
+fractured and a huge debate broke out among  mathematicians at the end of the 1800s on the
+07:24
+one side were the intuitionists who thought that  Cantor's work was nonsense they were convinced
+07:30
+that math was a pure creation of the human mind  and that infinities like Cantors weren't real
+07:37
+Henri Poincaré said that later generations will  regard set theory as a disease from which one
+07:42
+has recovered Leopold Kronecker called Cantor a  scientific charlatan and a corrupter of the youth
+07:49
+and he worked to keep Cantor from getting a job  he wanted on the other side were the formalists
+07:55
+they thought that math could be put on absolutely  secure logical foundations through Cantor's set
+08:00
+theory the informal leader of the formalists  was the german mathematician David Hilbert
+08:06
+Hilbert was a living legend a hugely influential  mathematician who had worked in nearly every area
+08:12
+of mathematics he almost beat Einstein to the  punch on general relativity he developed entirely
+08:17
+new mathematical concepts that were crucial for  quantum mechanics and he knew that Cantor's work
+08:22
+was brilliant Hilbert was convinced that a more  formal and rigorous system of mathematical proof
+08:28
+based on set theory could solve all the issues  that had cropped up in math over the last century
+08:34
+and most other mathematicians agreed with him no  one shall expel us from the paradise that Cantor
+08:39
+has created Hilbert declared but in 1901 Bertrand  Russell pointed out a serious problem in Cantor's
+08:46
+set theory Russell knew that if sets can contain  anything they can contain other sets or even
+08:52
+themselves for example the set of all sets must  contain itself as does the set of sets with more
+08:59
+than five elements in them you could even talk  about the set of all sets that contain themselves
+09:04
+but this leads straight to a problem what about r  the set of all sets that don't contain themselves
+09:12
+if r doesn't contain itself well then it must  contain itself but if r does contain itself
+09:18
+then by definition it must not contain itself so r  contains itself if and only if it doesn't Russell
+09:27
+had found another paradox of self-reference and  he later explained his paradox using a hairy
+09:33
+analogy let's say there's a village populated  entirely by grown men with a strange law against
+09:39
+beards specifically the law states that the  village barber must shave all and only those men
+09:44
+of the village who do not shave themselves but the  barber himself lives in the village too of course
+09:51
+and he's a man so who shaves him if he doesn't  shave himself then the barber has to shave him
+09:58
+but the barber can't shave himself because the  barber doesn't shave anyone who shaves themselves
+10:03
+so the barber must shave himself if and only if  he doesn't shave himself it's a contradiction
+10:11
+the intuitionists rejoiced at Russell's  paradox thinking it had proven set theory
+10:15
+hopelessly flawed but zermelo and other  mathematicians from Hilbert school
+10:20
+solved the problem by restricting the concept of  a set so the collection of all sets for example is
+10:26
+not a set anymore and neither is the collection  of all sets which don't contain themselves
+10:31
+this eliminated the paradoxes that  come with self-reference Hilbert and
+10:35
+the formalists lived to fight another day but  self-reference refused to die quite that easily
+10:43
+fast forward to the 1960s and mathematician Hao  Wang was looking at square tiles with different
+10:48
+colors on each side like these the rules were  that touching edges must be the same color
+10:54
+and you can't rotate or reflect tiles only slide  them around the question was if you're given an
+11:00
+arbitrary set of these tiles can you tell if they  will tile the plane that is will they connect
+11:06
+up with no gaps all the way out to infinity it  turns out you can't tell for an arbitrary set of
+11:13
+tiles whether they will tile the plane or not  the problem is undecidable just like the fate
+11:20
+of a pattern in Conway's game of life in fact  it's exactly the same problem and that problem
+11:26
+ultimately comes from self-reference as Hilbert  and the formalists were about to discover
+11:33
+Hilbert wanted to secure the foundations of  mathematics by developing a new system for
+11:38
+mathematical proofs systems of proof were an old  idea going back to the ancient greeks a system of
+11:44
+proof starts with axioms basic statements that  are assumed to be true like a straight line can
+11:49
+be drawn between any two points proofs are then  constructed from those axioms using rules of
+11:55
+inference methods for using existing statements  to derive new statements and these are chosen to
+12:00
+preserve truth the existing statements are true  then so are the new ones Hilbert wanted a formal
+12:07
+system of proof a symbolic logical language with a  rigid set of manipulation rules for those symbols
+12:13
+logical and mathematical statements could then  be translated into this system if you drop a
+12:18
+book then it will fall would be a then b and no  human is immortal would be expressed like this
+12:28
+Hilbert and the formalists wanted to express  the axioms of mathematics as symbolic statements
+12:32
+in a formal system and set up the rules  of inference as the system's rules for
+12:37
+symbol manipulation so Russell  along with Alfred North Whitehead
+12:42
+developed a formal system like this in  their three-volume Principia Mathematica
+12:46
+published in 1913. Principia Mathematica is vast a  total of nearly 2 000 pages of dense mathematical
+12:54
+notation it takes 762 pages just to get to a  complete proof that one plus one equals two
+13:03
+at which point Russell and Whitehead dryly note  the above proposition is occasionally useful
+13:09
+the authors had originally planned  a fourth volume but unsurprisingly
+13:13
+they were too worn out to complete it so yes  the notation is dense and exhausting but it is
+13:20
+also exact unlike ordinary languages it leaves  no room for errors or fuzzy logic to creep in
+13:28
+and most importantly it allows you to prove  properties of the formal system itself
+13:36
+there were three big questions that  Hilbert wanted answered about mathematics
+13:40
+number one is math complete meaning is there a  way to prove every true statement does every true
+13:48
+statement have a proof number two is mathematics  consistent meaning is it free of contradictions
+13:56
+i mean if you can simultaneously prove a and not  a then that's a real problem because you can prove
+14:03
+anything at all and number three is math  decidable meaning is there an algorithm that
+14:10
+can always determine whether a statement follows  from the axioms now Hilbert was convinced that
+14:17
+the answers to all three of these questions was  yes at a major conference in 1930 Hilbert gave
+14:25
+a fiery speech about these questions he ended it  with a line that summed up his formalist dream in
+14:31
+opposition to the foolish ignorabimus which means we  will not know our slogan shall be we must know we
+14:39
+will know these words are literally on his grave  but by the time Hilbert gave this speech his dream
+14:48
+was already crumbling just the day before at a  small meeting at the same conference a 24 year old
+14:54
+logician named Kurt Gödel explained that he had  found the answer to the first of Hilbert's three
+14:59
+big questions about completeness and the answer  was no a complete formal system of mathematics
+15:06
+was impossible the only person who paid much  attention was John von Neumann one of Hilbert's
+15:12
+former students who pulled Gödel aside to ask a  few questions but the next year Gödel published
+15:17
+a proof of his incompleteness theorem and this  time everyone including Hilbert took notice
+15:29
+this is how Gödel's proof works Gödel  wanted to use logic and mathematics
+15:35
+to answer questions about the very system  of logic and mathematics and so he took
+15:43
+all these basic symbols of a mathematical  system and then he gave each one a number
+15:51
+this is known as the symbol's Gödel number  so the symbol for not gets the number one
+15:58
+or has the Gödel number two if then it's Gödel  number three now if you're expressing all of these
+16:05
+symbols with numbers then what do you do about  the numbers themselves well zero gets its own
+16:11
+Gödel number six and if you want to write a one  you just put this successor symbol next to it the
+16:18
+immediate successor of zero is 1. and if you  want to write 2 then you have to write ss0
+16:26
+and that represents 2 and so on so you could  represent any positive integer this way
+16:31
+granted it is cumbersome but it works  and that is the point of this system
+16:36
+so now that we have Gödel numbers for all of  the basic symbols and all of the numbers we might
+16:42
+want to use we can start to write equations  like we could write zero equals zero so these
+16:50
+symbols have the Gödel numbers six five six and  we can actually create a new card that represents
+16:59
+this equation zero equals zero and the way we  do it is we take the prime numbers starting at 2
+17:07
+and we raise each one to the power of the Gödel  number of the symbol in our equation so we have
+17:14
+2 to the power of 6 times 3 to the power of 5  times 5 to the power of 6 equals 243 million
+17:21
+so 243 million is the Gödel number  of the whole equation zero equals
+17:29
+zero we can write down Gödel numbers for  any set of symbols that you can imagine
+17:36
+so really this is an infinite deck of cards where  any set of symbols that you want to write down
+17:42
+in a sequence you can represent with a unique  Gödel number and the beauty of this Gödel
+17:48
+number is you can do a prime factorization of it  and you can work out exactly what symbols made up
+17:55
+this card so in this whole pack of cards  there are going to be true statements
+18:01
+and there are going to be false statements so how  do you prove that something is true well you need
+18:07
+to go to the axioms the axioms also have their own  Gödel numbers which are formed in the same way
+18:15
+so here's an axiom which says not the successor of  any number x equals zero which makes sense because
+18:24
+in this system there are no negative numbers and  so the successor of any number cannot be zero
+18:30
+so we can put down this axiom and then we can  substitute in zero for x saying that one does not
+18:38
+equal zero and we've created a proof this is the  simplest proof i can think of that shows that one
+18:46
+does not equal zero now this card for the proof of  one does not equal zero gets its own Gödel number
+18:54
+and the way we calculate this Gödel number  is just as before we take the prime numbers
+18:59
+and we raise 2 to the power of the axiom times  3 to the power of 1 does not equal 0 and we get
+19:08
+a tremendously large number it would have 73  million digits if you calculated it all out so
+19:14
+i've just left it here in exponential notation as  you can see these numbers get very large and so
+19:22
+you might want to start just calling them by  letters so we could say this one is Gödel
+19:27
+number a this is Gödel number b Gödel number  c and so on Gödel goes to all this trouble to find
+19:36
+this card which says there is no proof for the  statement with Gödel number g the trick is
+19:46
+that the Gödel number of this card is  g so what this statement is really saying
+19:53
+is this card is unprovable there is no proof  anywhere in our infinite deck for this card
+20:01
+now think about it if it's  false and there is a proof
+20:05
+then what you have just proven is there is  no proof so you're stuck with a contradiction
+20:14
+that would mean the mathematical system is  inconsistent the other alternative is that
+20:20
+this card is true there is no proof for the  statement with Gödel number g but that means
+20:26
+this mathematical system has true statements  in it that have no proof so your mathematical
+20:33
+system is incomplete and that is Gödel's  incompleteness theorem this is how he shows
+20:40
+that any basic mathematical system that can do  fundamental arithmetic will always have statements
+20:47
+within it which are true but which have no proof  there's a line in the tv show the office that
+20:55
+echoes the self-referential paradox of Gödel's  proof jim is my enemy but it turns out the jim
+21:01
+is also his own worst enemy and the enemy of my  enemy is my friend so jim is actually my friend
+21:09
+but because he is his own worst enemy the enemy
+21:13
+of my friend is my enemy so  actually jim is my enemy but
+21:22
+Gödel's incompleteness theorem means that  truth and provability are not at all the same
+21:28
+thing Hilbert was wrong there will always be true  statements about mathematics that just cannot
+21:34
+be proven now Hilbert could console himself with  the hope that at least we could still prove maths
+21:39
+consistent that is free of contradictions  but then Gödel published his second
+21:44
+incompleteness theorem in which he showed  that any consistent formal system of math
+21:49
+cannot prove its own consistency so taken together  Gödel's two incompleteness theorems say that the
+21:56
+best you can hope for is a consistent yet  incomplete system of math but a system like
+22:03
+that cannot prove its own consistency so some  contradiction could always crop up in the future
+22:08
+revealing that the system you'd been working with  had been inconsistent the whole time and that
+22:13
+leaves only the third and final big question from  Hilbert is mathematics decidable that is is there
+22:19
+an algorithm that can always determine whether  a statement follows from the axioms and in 1936
+22:26
+Alan Turing found a way to settle this question  but to do it he had to invent the modern computer
+22:34
+in his time computers weren't machines  they were people often women who carried
+22:39
+out long and tedious calculations Turing  imagined an entirely mechanical computer
+22:45
+he wanted it to be powerful enough to perform any  computation imaginable but simple enough that you
+22:51
+could reason through its operation so he came up  with a machine that takes as input an infinitely
+22:57
+long tape of square cells each containing a zero  or a one the machine has a read write head that
+23:04
+can read one digit at a time then it can perform  one of only a few tasks overwrite a new value
+23:13
+move left move right or simply halt  halting means the program has run
+23:19
+to completion the program consists of a set of  internal instructions you can think of it like
+23:25
+a flow chart that tells the machine what to do  based on the digit it reads and its internal state
+23:32
+you could imagine exporting these instructions to  any other Turing machine which would then perform
+23:37
+in exactly the same way as the first although  this sounds simple a Turing machine's arbitrarily
+23:43
+large memory and program mean it can execute any  computable algorithm if given enough time from
+23:50
+addition and subtraction to the entire youtube  algorithm it can do anything a modern computer can
+23:58
+that's what made the Turing machine so useful in  answering Hilbert's question on decidability when
+24:04
+a touring machine halts the program has finished  running and the tape is the output but sometimes a
+24:10
+touring machine never halts maybe it gets stuck in  an infinite loop is it possible to tell beforehand
+24:16
+if a program will halt or not on a particular  input Turing realized this halting problem
+24:22
+was very similar to the decidability problem if  he could find a way to figure out if a Turing
+24:26
+machine would halt then it would also be possible  to decide if a statement followed from the axioms
+24:33
+for example you could solve the twin prime  conjecture by writing a Turing machine program
+24:37
+that starts with the axioms and constructs  all theorems that can be produced in one step
+24:42
+using the rules of inference then it constructs  all theorems that can be produced in one step
+24:47
+from those and so on each time it generates a  new theorem it checks if it's the twin prime
+24:52
+conjecture and if it is it halts if not it never  halts so if you could solve the halting problem
+25:00
+you could solve the twin prime conjecture  and all sorts of other unsolved questions
+25:05
+so Turing said let's assume we can make a  machine h that can determine whether any
+25:10
+Turing machine will halt or not on a particular  input you insert the program and its input
+25:16
+and h simulates what will happen printing out  either halts or never halts for now we don't worry
+25:24
+about how h works we just know that it always  works it always gives you the right answer now
+25:30
+we can modify the h machine by adding additional  components one if it receives the output halts
+25:37
+immediately goes into an infinite loop another if  it receives never holds then it immediately halts
+25:45
+we can call this entire new machine h plus and  we can export the program for that entire machine
+25:54
+now what happens if we give this machine  its own code both as program and input
+26:02
+well now h is simulating what h plus  would do given its own input essentially h
+26:09
+has to determine the behavior of a machine  that it itself is a part of in this exact
+26:16
+circumstance if h concludes that h plus never  halts well this makes h plus immediately halt
+26:28
+if h thinks h plus will halt well then  that necessarily forces h plus to loop
+26:38
+whatever output the halting machine h gives it  turns out to be wrong there's a contradiction
+26:47
+the only explanation can be that a machine like  h can't exist there's no way to tell in general
+26:53
+if a touring machine will halt or not on a given  input and this means mathematics is undecidable
+27:02
+there is no algorithm that can always determine  whether a statement is derivable from the axioms
+27:08
+so something like the twin prime conjecture  might be unsolvable we might never know
+27:14
+whether there are infinite twin primes or not  the problem of undecidability even crops up
+27:20
+in physical systems in quantum mechanics one  of the most important properties of a many-body
+27:26
+system is the difference in energy between  its ground state and its first excited state
+27:31
+this is known as the spectral gap some systems  have a significant spectral gap whereas others
+27:37
+are gapless there are a continuum of energy levels  all the way down to the ground state and this is
+27:44
+important because at low temperatures gapless  quantum systems can undergo phase transitions
+27:49
+while gapped systems cannot they don't have  the energy needed to overcome the spectral gap
+27:54
+but figuring out if a system is gapped or gapless  has long been known to be a very difficult
+28:02
+problem only recently in 2015 did mathematicians  prove that in general the spectral gap question
+28:10
+is undecidable to quote the authors even a  perfect complete description of the microscopic
+28:17
+interactions between a material's particles is not  always enough to deduce its macroscopic properties
+28:24
+now remember that Turing designed his machines to  be as powerful computers as it is possible to make
+28:30
+to this day the best computational systems are  those that can do everything a touring machine can
+28:36
+this is called touring completeness and it turns  out there are many such during complete systems
+28:43
+although they are powerful every touring complete  system comes with a catch its own analog of the
+28:49
+halting problem some undecidable property of  the system Wang tiles are touring complete their
+28:55
+halting problem is whether or not they'll tile the  plane complex quantum systems are Turing complete
+29:01
+and their halting problem is the spectral gap  question and the game of life is Turing complete
+29:07
+its halting problem is literally whether or  not it halts there are many more examples
+29:13
+of this like airline ticketing systems magic the  gathering powerpoint slides and excel spreadsheets
+29:19
+nearly every programming language in existence is  designed to be Turing complete but in theory we
+29:25
+only need one programming language because  well you can program anything at all using
+29:29
+any Turing complete system so here's a touring  machine inside the game of life and since the
+29:42
+game of life is itself touring complete it should  be capable of simulating itself and indeed it is
+29:56
+this is the game of life  running on the game of life
+30:09
+the real legacy of David Hilbert's dream  is all of our modern computational devices
+30:16
+Kurt Gödel suffered bouts of mental instability  later in life convinced that people were trying
+30:22
+to poison him he refused to eat eventually  starving himself to death Hilbert died in 1943
+30:31
+his epitaph was his slogan from 1930. we must know  we will know the truth is we don't know sometimes
+30:41
+we can't know but in trying to find out we can  discover new things things that change the world
+30:49
+Alan Turing put his ideas about computing to  practical use in world war ii leading the team
+30:54
+at Bletchley Park that built real calculating  machines to crack nazi codes for the allies
+30:59
+by one estimate the intelligence Turing and  his colleagues gathered from decrypted messages
+31:04
+shortened the war by two to four years after  the war Turing and John von Neumann designed
+31:10
+the first true programmable electronic  computer eniac based on touring's designs
+31:16
+but Turing didn't live to see  his ideas develop much further
+31:20
+in 1952 the british government convicted him of  gross indecency upon learning he was gay he was
+31:26
+stripped of his security clearance and forced  to take hormones in 1954 he committed suicide
+31:36
+touring changed the world he is widely  considered to be the most important founding
+31:41
+figure in computer science all modern  computers are descended from his designs
+31:46
+but touring's ideas about computability  came from his concept of the Turing machine
+31:52
+which came from thinking about Hilbert's question  is math decidable so touring's code breaking
+31:58
+machines and indeed all modern computers stem from  the weird paradoxes that arise from self-reference
+32:07
+there is a hole at the bottom of math a hole that  means we will never know everything with certainty
+32:14
+there will always be true  statements that cannot be proven
+32:18
+and you might think this realization  would have driven mathematicians mad
+32:22
+and led to the disintegration of the entire  mathematical enterprise but instead thinking
+32:27
+about this problem transformed the concept  of infinity changed the course of a world war
+32:33
+and led directly to the invention of the  device you're watching this on right now
+32:47
+hey this video was sponsored by brilliant a  website full of interactive courses and quizzes
+32:51
+that delve deep into topics like math physics and  computer science now if you've gotten this far
+32:57
+into this video you're likely someone who would  love brilliant i've been going through their
+33:01
+logic course and it's really got me thinking  the problems start out easy but get more and
+33:07
+more challenging as you develop your understanding  and that's what i love about the site i love how
+33:12
+it guides you not by telling you exactly but by  exposing you to increasingly sophisticated puzzles
+33:18
+and at the end i feel like i've worked it out  for myself which essentially i have through
+33:22
+their carefully curated selection of problems  and with helpful hints and explanations for
+33:26
+when i get stuck now there were a lot of things  i wanted to include in this video but couldn't
+33:32
+because it's already over half an hour long so if  you want to explore these ideas further i'd highly
+33:38
+recommend their courses on number theory and  computer science fundamentals for viewers of this
+33:43
+channel brilliant are offering 20 off an annual  subscription to the first 200 people to sign up
+33:48
+just go to brilliant.org veritasium and i  will put that link down in the description
+33:54
+so i want to thank brilliant for sponsoring  veritasium and i want to thank you for watching
