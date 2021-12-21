@@ -50,27 +50,34 @@ int main (int argc, char **argv) {
         printf("Error: problems with pipe.\n");
         return 1;
     }
-    pids = (pid_t *) malloc (sizeof(pid_t) * (N - 1)); /* TODO malloc errors */
-    for (i = N - 1; i > 0; i--) {
+    pids = (pid_t *) malloc(sizeof(pid_t) * (N - 1));
+    if (pids == NULL) {
+        free(pids);
+        close(fd[0]);
+        close(fd[1]);
+        return 1;
+    }
+    for (i = 0; i < N - 1; i++) {
         if ((pids[i] = fork()) == -1)
             printf("Warning: failed to create child #%d.\n", i);
-        else if (pids[i] == 0)
-            break;
+        else if (pids[i] == 0) {
+            letter = pickup(i + 1);
+            companion(letter, fd);
+            free(letter);
+            free(pids);
+            pids = NULL;
+            letter = NULL;
+            close(fd[0]);
+            close(fd[1]);
+            return 0;
+        }
     }
-    /* Father */
-    if (i == 0) {
-        postman(pids, fd);
-        for (j = 1; j < N; j++)
-            kill(pids[j - 1], SIGCHLD);
-        free(pids);
-        pids = NULL;
-        while (wait(NULL) != -1);
-    }
-    /* Children */
-    else {
-        letter = pickup(i);
-        companion(letter, fd);
-    }
+    postman(pids, fd);
+    for (j = 0; j < N - 1; j++)
+        kill(pids[j], SIGCHLD);
+    free(pids);
+    pids = NULL;
+    while (wait(NULL) != -1);
     close(fd[0]);
     close(fd[1]);
     return 0;
@@ -99,7 +106,7 @@ struct package *pickup(int badge) {
         fclose(file);
         return package;        
     }
-    if (target < 0 || target >= N) {
+    if (target <= 0 || target >= N) {
         printf("Error: child #%d encountered invalid target.\n", badge);
         free(package);
         package = NULL;
@@ -129,20 +136,20 @@ struct package *pickup(int badge) {
             fclose(file);
             return package;
         }
-        if (c != ' ' && c != '\t' && c != '\n')
+        if (newline_c) {
+            printf("Error: child #%d encountered extra input in the message.\n", badge);
+            free(package);
+            package = NULL;
+            fclose(file);
+            return package;
+        }
+        if (c != ' ' && c != '\t' && c != '\n') {
             if (!seen_character) 
                 seen_character = 1;
-        if (c == '\n') {
+        } else if (c == '\n')
             newline_c++;
-            if (newline_c > 1 || !seen_character) { /* More than 1 line in the message */
-                printf("Error: child #%d encountered extra lines in the message.\n", badge);
-                free(package);
-                package = NULL;
-                fclose(file);
-                return package;
-            }
-        }
-        package -> msg[cnt++] = c;
+        if (c != '\n')
+            package -> msg[cnt++] = c;
     }
     if (!seen_character) {
         printf("Error: child #%d: the message is empty.\n", badge);
@@ -161,8 +168,8 @@ void postman(pid_t *pids, int *fd) {
     int son;
     struct package letter;
 
-    for (son = 1; son < N; son++) {
-        kill(pids[son - 1], SIGUSR1); /* Speak, son */
+    for (son = 0; son < N - 1; son++) {
+        kill(pids[son], SIGUSR1); /* Speak, son */
         while (flag1 == 0 && flag2 == 0);
         if (flag2) {
             flag2 = 0;
@@ -170,9 +177,9 @@ void postman(pid_t *pids, int *fd) {
         }
         flag1 = 0;
         read(fd[0], &letter, sizeof(struct package)); /* Receive the letter */
-        kill(pids[letter.target - 1], SIGUSR2); /* Receive, son */
         write(fd[1], &son, sizeof(int)); /* Send the number of the speaker */
         write(fd[1], &letter, sizeof(struct package)); /* Send the letter */
+        kill(pids[letter.target - 1], SIGUSR2); /* Receive, son */
         while (flag1 == 0); /* Wait for son to receive and print */
         flag1 = 0;
     }    
@@ -198,8 +205,9 @@ void companion(struct package *letter, int *fd) {
             flag2 = 0;
             read(fd[0], &from, sizeof(int));
             read(fd[0], &received_letter, sizeof(struct package));
-            printf("Son #%d received message from %d:\n", received_letter.target, from);
-            printf("%s\n", received_letter.msg);
+            printf("Son #%d received message from son #%d:\n", received_letter.target, from + 1);
+            fputs(received_letter.msg, stdout);
+            printf("\n");
             kill(getppid(), SIGUSR1);
         } else if (stop)
             return;
