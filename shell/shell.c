@@ -88,10 +88,22 @@ char *get_line(int line_size, int *block_count) {
             if (CONV_flag == 0) {
                 if (c != ' ' && c != '\t' && c != '|') {
                     if (c == '>') {
-                        if (the_string[count - 1] != ' ' && the_string[count - 1] != '>') {
+                        if (the_string[count - 1] == '2') {
+                            if (the_string[count - 2] != ' ')
+                                the_string[count++] = ' ';
+                        } else if (the_string[count - 1] == '>') {
+                            if (the_string[count - 2] == '>')
+                                the_string[count++] = ' ';
+                        } else
                             the_string[count++] = ' ';
-                        }
-                    } else if (the_string[count - 1] == '>')
+                    } else if (the_string[count - 1] == '>') {
+                        if (c != '>')
+                            the_string[count++] = ' ';
+                    }
+                    if (c == '<') {
+                        if (the_string[count - 1] != ' ')
+                            the_string[count++] = ' ';
+                    } else if (the_string[count - 1] == '<')
                         the_string[count++] = ' ';
                     if (seen_character == 0)
                         seen_character = 1;
@@ -158,7 +170,6 @@ char *get_line(int line_size, int *block_count) {
     puts("Conveyor error: No input available. The EOF is reached.\n");
     return the_string;
 }
-
 
 /* Akkuratno blyat vse razdelyaem */
 char ***sep_cmd(char *string, int block_count, int *counts) {
