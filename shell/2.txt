@@ -1,4 +1,0 @@
-1.txt
-2.txt
-shell
-shell.c

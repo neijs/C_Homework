@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <errno.h>
 
 #define LINE_SIZE 30
 
@@ -12,10 +15,12 @@ char ***sep_cmd(char *, int, int*);
 int word_count(char *);
 
 int main() {
-    int block_count, i, j, k;
+    pid_t slave;
+    int block_count, i, j, k, input;
     int *counts = NULL;
     char *string = NULL;
     char ***commands = NULL;
+    int fd[2];
 
     while (1) {
         printf("$");
@@ -46,7 +51,53 @@ int main() {
             for (j = 0; j < counts[i]; j++) {
                 puts(commands[i][j]);
             }
-            puts("-------------");
+            puts("-------------");   
+        }
+        for (j = 0; j < block_count; j++) {
+            /* Обработка exit, pwd, cd и прочего самодельного дерьма */
+            if (strcmp(commands[j][0], "exit") == 0) {
+                free(string);
+                string = NULL;
+                free(counts);
+                counts = NULL;
+                for (i = 0; i < block_count; i++) {
+                    free(commands[i]);
+                    commands[i] = NULL;
+                }
+                free(commands);
+                commands = NULL;
+                printf("\nAborted due to exit.\n");
+                exit(0);
+            }
+            /* ----------------------------------------------------- */
+            pipe(fd);
+            slave = fork(); /* stdin - 0, stdout - 1, stderr - 2 */
+            if (slave == 0) {
+                if (j != block_count - 1) /* Все кроме последнего отправляют свой вывод в пайп */
+                    dup2(fd[1], 1);
+                if (j > 0) /* Все кроме первого берут свой ввод из пайпа */
+                    dup2(input, 0);
+                close(fd[0]);
+                close(fd[1]); 
+                if (execvp(commands[j][0], commands[j]) == -1) {
+                    printf("Command \'%s\' not found.\n", commands[j][0]);
+                    free(string);
+                    string = NULL;
+                    free(counts);
+                    counts = NULL;
+                    for (i = 0; i < block_count; i++) {
+                        free(commands[i]);
+                        commands[i] = NULL;
+                    }
+                    free(commands);
+                    commands = NULL;
+                    exit(1);
+                }
+            } 
+            /* Father */
+            input = fd[0];
+            close(fd[1]);
+            wait(NULL);
         }
 
         /* Все отработало гладко, осталось все освободить */
@@ -61,12 +112,11 @@ int main() {
         free(commands);
         commands = NULL;
         /* ---------------------------------------------- */
-
         if (EOF_flag == 1) {
             printf("EOF is reached.\n");
             break;
         }
-    }
+    } /* while */
     return 0;
 }
 
@@ -110,6 +160,10 @@ char *get_line(int line_size, int *block_count) {
                     sep_count = 0;
                 } else if (c == '|') {
                     sep_count++;
+                    if (the_string[count - 1] == '>' || (the_string[count - 1] == ' ' && the_string[count - 2] == '>')) {
+                        printf("Conveyor error: unexpected token '|'.\n");
+                        CONV_flag = 1;
+                    }
                     if (seen_character) {
                         (*block_count)++;
                         seen_character = 0;
@@ -205,7 +259,7 @@ char ***sep_cmd(char *string, int block_count, int *counts) {
     for (number = 0; number < block_count; number++) {
         count = word_count(solid_blocks[number]);
         counts[number] = count;
-        separated_block = (char **) malloc(count * sizeof(char *));
+        separated_block = (char **) malloc((count + 1) * sizeof(char *));
         if (separated_block == NULL) {
             printf("sep_cmd error: could't allocate the memory for separated blocks.\n");
             for (j = 0; j < number; j++) {
@@ -225,6 +279,7 @@ char ***sep_cmd(char *string, int block_count, int *counts) {
             else
                 separated_block[i] = strtok(NULL, " ");
         }
+        separated_block[i] = NULL;
         separated_blocks[number] = separated_block;
     }
     /* ----------------------------------------------------- */
