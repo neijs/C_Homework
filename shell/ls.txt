@@ -1,6 +1,0 @@
-ls.txt
-nastya.bin
-shell
-shell.c
-stoopid.c
-naxuuuuuuuy
