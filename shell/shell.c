@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <errno.h>
 
 #define LINE_SIZE 30
@@ -13,17 +14,21 @@ int EOF_flag = 0;
 char *get_line(int, int*);
 char ***sep_cmd(char *, int, int*);
 int word_count(char *);
+int check_for_redir(char **, int*, int*);
+int check_for_synt(char *);
+void delete_excess(char ***, int, int);
 
 int main() {
-    pid_t slave;
+    pid_t *pids;
     int block_count, i, j, k, input;
-    int *counts = NULL;
+    int stdinf = 0, stdoutf = 0;
+    int *counts = NULL, *redir_fds = NULL;
     char *string = NULL;
     char ***commands = NULL;
     int fd[2];
 
     while (1) {
-        printf("$");
+        printf("$ ");
         string = get_line(LINE_SIZE, &block_count);
         if (string == NULL) {
             if (EOF_flag == 1) {
@@ -34,7 +39,7 @@ int main() {
         }
         counts = (int *) malloc(block_count * sizeof(int));
         if (counts == NULL) {
-            printf("Error in main: couldn't allocate the memory for counts.\n");
+            fprintf(stderr, "Error in main: couldn't allocate the memory for counts.\n");
             free(string);
             string = NULL;
             free(counts);
@@ -53,8 +58,40 @@ int main() {
             }
             puts("-------------");   
         }
+        pids = (pid_t *) malloc(block_count * sizeof(pid_t));
+        if (pids == NULL) {
+            fprintf(stderr, "Error in main: couldn't allocate the memory for pids.\n");
+            free(string);
+            string = NULL;
+            free(counts);
+            counts = NULL;
+            for (i = 0; i < block_count; i++) {
+                free(commands[i]);
+                commands[i] = NULL;
+            }
+            free(commands);
+            commands = NULL;
+            continue;
+        }
+        redir_fds = (int *) malloc (3 * sizeof(int));
+        if (redir_fds == NULL) {
+            fprintf(stderr, "Error in main: couldn't allocate the memory for redir_fds.\n");
+            free(pids);
+            pids = NULL;
+            free(string);
+            string = NULL;
+            free(counts);
+            counts = NULL;
+            for (i = 0; i < block_count; i++) {
+                free(commands[i]);
+                commands[i] = NULL;
+            }
+            free(commands);
+            commands = NULL;
+            continue;
+        }
         for (j = 0; j < block_count; j++) {
-            /* Обработка exit, pwd, cd и прочего самодельного дерьма */
+            /* Обработка exit, pwd, cd и самодельных команд. Пока что это происходит в отце */
             if (strcmp(commands[j][0], "exit") == 0) {
                 free(string);
                 string = NULL;
@@ -70,35 +107,63 @@ int main() {
                 exit(0);
             }
             /* ----------------------------------------------------- */
-            pipe(fd);
-            slave = fork(); /* stdin - 0, stdout - 1, stderr - 2 */
-            if (slave == 0) {
+
+            if (pipe(fd) == -1) {
+                fprintf(stderr, "Error in main: couldn't open the pipe.\n");
+                break;
+            }
+            pids[j] = fork(); /* stdin - 0, stdout - 1, stderr - 2 */
+            if (pids[j] == 0) {
                 if (j != block_count - 1) /* Все кроме последнего отправляют свой вывод в пайп */
                     dup2(fd[1], 1);
                 if (j > 0) /* Все кроме первого берут свой ввод из пайпа */
                     dup2(input, 0);
-                close(fd[0]);
-                close(fd[1]); 
-                if (execvp(commands[j][0], commands[j]) == -1) {
-                    printf("Command \'%s\' not found.\n", commands[j][0]);
+                if (check_for_redir(commands[j], &counts[j], redir_fds)) {
+                    close(fd[0]);
+                    close(fd[1]);
+                    free(redir_fds);
+                    redir_fds = NULL;
                     free(string);
                     string = NULL;
                     free(counts);
                     counts = NULL;
                     for (i = 0; i < block_count; i++) {
                         free(commands[i]);
-                        commands[i] = NULL;
+                        commands[i] = NULL; 
                     }
                     free(commands);
                     commands = NULL;
-                    exit(1);
+                    exit(0);
                 }
+                for (i = 0; i < 3; i++) {
+                    if (redir_fds[i] != -1) {
+                        dup2(redir_fds[i], i);
+                        close(redir_fds[i]);
+                    }
+                }
+                free(redir_fds);
+                redir_fds = NULL;
+                close(fd[0]);
+                close(fd[1]); 
+                execvp(commands[j][0], commands[j]);
+                fprintf(stderr, "Command \'%s\' not found.\n", commands[j][0]);
+                free(string);
+                string = NULL;
+                free(counts);
+                counts = NULL;
+                for (i = 0; i < block_count; i++) {
+                    free(commands[i]);
+                    commands[i] = NULL;
+                }
+                free(commands);
+                commands = NULL;
+                exit(1);
             } 
             /* Father */
             input = fd[0];
             close(fd[1]);
             wait(NULL);
-        }
+        } /* for */
 
         /* Все отработало гладко, осталось все освободить */
         free(string);
@@ -111,6 +176,10 @@ int main() {
         }
         free(commands);
         commands = NULL;
+        free(pids);
+        pids = NULL;
+        free(redir_fds);
+        redir_fds = NULL;
         /* ---------------------------------------------- */
         if (EOF_flag == 1) {
             printf("EOF is reached.\n");
@@ -128,7 +197,7 @@ char *get_line(int line_size, int *block_count) {
 
     if (!EOF_flag) {
         if (the_string == NULL) {
-            printf("Conveyor error: Couldn't allocate the memory for string.\n");
+            fprintf(stderr, "Conveyor error: Couldn't allocate the memory for string.\n");
             free(the_string);
             the_string = NULL;
             return the_string;
@@ -161,7 +230,7 @@ char *get_line(int line_size, int *block_count) {
                 } else if (c == '|') {
                     sep_count++;
                     if (the_string[count - 1] == '>' || (the_string[count - 1] == ' ' && the_string[count - 2] == '>')) {
-                        printf("Conveyor error: unexpected token '|'.\n");
+                        fprintf(stderr, "Conveyor error: unexpected token '|'.\n");
                         CONV_flag = 1;
                     }
                     if (seen_character) {
@@ -169,9 +238,9 @@ char *get_line(int line_size, int *block_count) {
                         seen_character = 0;
                     } else {
                         if (sep_count > 1)
-                            printf("Conveyor error: || is not allowed.\n");
+                            fprintf(stderr, "Conveyor error: || is not allowed.\n");
                         else 
-                            printf("Conveyor error: | at the start is not allowed.\n");
+                            fprintf(stderr, "Conveyor error: | at the start is not allowed.\n");
                         CONV_flag = 1;
                     }
                 }
@@ -179,7 +248,7 @@ char *get_line(int line_size, int *block_count) {
                     line_size *= 2;
                     the_string = (char *) realloc(the_string, line_size * sizeof(char));
                     if (the_string == NULL) {
-                        printf("Conveyor error: Couldn't reallocate the string.\n");
+                        fprintf(stderr, "Conveyor error: Couldn't reallocate the string.\n");
                         CONV_flag = 1;
                     }
                 }
@@ -195,6 +264,14 @@ char *get_line(int line_size, int *block_count) {
         } /* while */
         if (c == EOF)
             EOF_flag = 1;
+        if (the_string[count - 1] == '>' || the_string[count - 2] == '>') {
+            fprintf(stderr, "Conveyor error: > at the end is not allowed.\n");
+            CONV_flag = 1;
+        }
+        if (the_string[count - 1] == '<' || the_string[count - 2] == '<') {
+            fprintf(stderr, "Conveyor error: < at the end is not allowed.\n");
+            CONV_flag = 1;
+        }
         if (CONV_flag) {
             free(the_string);
             the_string = NULL;
@@ -204,14 +281,14 @@ char *get_line(int line_size, int *block_count) {
             (*block_count)++;
         else if (seen_character == 0) {
             if (sep_count != 0)
-                printf("Conveyor error: | at the end is not allowed.\n");
+                fprintf(stderr, "Conveyor error: | at the end is not allowed.\n");
             free(the_string);
             the_string = NULL;
             return the_string;
         }
         the_string = (char *) realloc(the_string, (count + 1) * sizeof(char));
         if (the_string == NULL) {
-            printf("Conveyor error: Couldn't reallocate the string.\n");
+            fprintf(stderr, "Conveyor error: Couldn't reallocate the string.\n");
             free(the_string);
             the_string = NULL;
             return the_string;
@@ -221,11 +298,11 @@ char *get_line(int line_size, int *block_count) {
     }
     free(the_string);
     the_string = NULL;
-    puts("Conveyor error: No input available. The EOF is reached.\n");
+    fprintf(stderr, "Conveyor error: No input available. The EOF is reached.\n");
     return the_string;
 }
 
-/* Akkuratno blyat vse razdelyaem */
+/* Akkuratno vse razdelyaem */
 char ***sep_cmd(char *string, int block_count, int *counts) {
     char **solid_blocks = NULL;
     char **separated_block = NULL;
@@ -235,7 +312,7 @@ char ***sep_cmd(char *string, int block_count, int *counts) {
     /* Разделяем начальную строку на целые блоки */
     solid_blocks = (char **) malloc(block_count * sizeof(char *));
     if (solid_blocks == NULL) {
-        printf("sep_cmd error: couldn't allocate the memory for solid_blocks.\n");
+        fprintf(stderr, "sep_cmd error: couldn't allocate the memory for solid_blocks.\n");
         free(string);
         return NULL;
     }
@@ -250,7 +327,7 @@ char ***sep_cmd(char *string, int block_count, int *counts) {
     /* Разделяем целый блок на отдельные команды и параметры */
     separated_blocks = (char ***) malloc(block_count * sizeof(char **));
     if (separated_blocks == NULL) {
-        printf("sep_cmd error: could't allocate the memory for separated blocks.\n");
+        fprintf(stderr, "sep_cmd error: could't allocate the memory for separated blocks.\n");
         free(solid_blocks);
         free(string);
         solid_blocks = NULL;
@@ -261,7 +338,7 @@ char ***sep_cmd(char *string, int block_count, int *counts) {
         counts[number] = count;
         separated_block = (char **) malloc((count + 1) * sizeof(char *));
         if (separated_block == NULL) {
-            printf("sep_cmd error: could't allocate the memory for separated blocks.\n");
+            fprintf(stderr, "sep_cmd error: could't allocate the memory for separated blocks.\n");
             for (j = 0; j < number; j++) {
                 free(separated_blocks[j]);
                 separated_blocks[j] = NULL;
@@ -300,4 +377,100 @@ int word_count(char *string) {
             prev = 1;
     }
     return words;
+}
+
+int check_for_redir(char **cmds, int *cmd_amount, int *redir) {
+    int j, i, temp;
+
+    for (i = 0; i < 3; i++) {
+        redir[i] = -1;
+    }
+    for (j = 0; j < *cmd_amount; j++) {
+        if (strcmp(cmds[j], ">") == 0 && redir[1] == -1) {
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            temp = open(cmds[j], O_RDWR | O_TRUNC);
+            if (temp == -1) {
+                if (!check_for_synt(cmds[j])) {
+                    temp = creat(cmds[j], 0666);
+                    if (temp == -1) {
+                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                        return 1; 
+                    }
+                } else {
+                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                    return 1;
+                }
+            }
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            j--;
+            redir[1] = temp;
+        } else if (strcmp(cmds[j], ">>") == 0 && redir[1] == -1) {
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            temp = open(cmds[j], O_RDWR | O_APPEND);
+            if (temp == -1) {
+                if (!check_for_synt(cmds[j])) {
+                    temp = creat(cmds[j], 0666);
+                    if (temp == -1) {
+                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                        return 1; 
+                    }
+                } else {
+                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                    return 1;
+                }
+            }
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            j--;
+            redir[1] = temp;
+        } else if (strcmp(cmds[j], "<") == 0 && redir[0] == -1) {
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            temp = open(cmds[j], O_RDWR);
+            if (temp == -1) {
+                fprintf(stderr, "Redir error: couldn't open \'%s\' directory.\n", cmds[j + 1]);
+                return 1;
+            }
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            j--;
+            redir[0] = temp;
+        } else if (strcmp(cmds[j], "2>") == 0 && redir[2] == -1) {
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            temp = open(cmds[j], O_RDWR | O_TRUNC);
+            if (temp == -1) {
+                if (!check_for_synt(cmds[j])) {
+                    temp = creat(cmds[j], 0666);
+                    if (temp == -1) {
+                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                        return 1; 
+                    }
+                } else {
+                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                    return 1;
+                }
+            }
+            delete_excess(&cmds, *cmd_amount, j);
+            (*cmd_amount)--;
+            j--;
+            redir[2] = temp;
+        }  
+    } /* For commands in block */
+    return 0;
+}
+
+int check_for_synt(char *cmd) {
+    return (strcmp(cmd, ">") == 0) || (strcmp(cmd, ">>") == 0) || (strcmp(cmd, "<") == 0) || (strcmp(cmd, "2>") == 0);
+}
+
+void delete_excess(char ***cmds, int length, int count){
+    int j;
+
+    for (j = count; j < length; j++){
+        (*cmds)[j] = (*cmds)[j + 1];
+    }
 }
