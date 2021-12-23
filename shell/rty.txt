@@ -1,0 +1,17 @@
+2.txt
+err.txt
+ls.txt
+lswc.txt
+nastya.bin
+o
+o.c
+qwerty
+qwerty.c
+rty.txt
+shell
+shell.c
+stoopid.c
+t.txt
+txt
+wc
+y.txt

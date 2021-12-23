@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <signal.h>
 
 #define LINE_SIZE 30
 
@@ -42,21 +43,12 @@ int main() {
             fprintf(stderr, "Error in main: couldn't allocate the memory for counts.\n");
             free(string);
             string = NULL;
-            free(counts);
-            counts = NULL;
             continue;
         }
         commands = sep_cmd(string, block_count, counts);
         if (commands == NULL) {
             string = NULL;
             continue;
-        }
-        for (i = 0; i < block_count; i++) {
-            puts("-------------");
-            for (j = 0; j < counts[i]; j++) {
-                puts(commands[i][j]);
-            }
-            puts("-------------");   
         }
         pids = (pid_t *) malloc(block_count * sizeof(pid_t));
         if (pids == NULL) {
@@ -93,6 +85,10 @@ int main() {
         for (j = 0; j < block_count; j++) {
             /* Обработка exit, pwd, cd и самодельных команд. Пока что это происходит в отце */
             if (strcmp(commands[j][0], "exit") == 0) {
+                free(pids);
+                pids = NULL;
+                free(redir_fds);
+                redir_fds = NULL;
                 free(string);
                 string = NULL;
                 free(counts);
@@ -123,8 +119,6 @@ int main() {
                     close(fd[1]);
                     free(redir_fds);
                     redir_fds = NULL;
-                    free(string);
-                    string = NULL;
                     free(counts);
                     counts = NULL;
                     for (i = 0; i < block_count; i++) {
@@ -133,6 +127,10 @@ int main() {
                     }
                     free(commands);
                     commands = NULL;
+                    free(string);
+                    string = NULL;
+                    free(pids);
+                    pids = NULL;
                     exit(0);
                 }
                 for (i = 0; i < 3; i++) {
@@ -143,14 +141,16 @@ int main() {
                 }
                 free(redir_fds);
                 redir_fds = NULL;
+                free(pids);
+                pids = NULL;
+                free(counts);
+                counts = NULL;
                 close(fd[0]);
                 close(fd[1]); 
                 execvp(commands[j][0], commands[j]);
                 fprintf(stderr, "Command \'%s\' not found.\n", commands[j][0]);
                 free(string);
                 string = NULL;
-                free(counts);
-                counts = NULL;
                 for (i = 0; i < block_count; i++) {
                     free(commands[i]);
                     commands[i] = NULL;
@@ -170,16 +170,16 @@ int main() {
         string = NULL;
         free(counts);
         counts = NULL;
+        free(pids);
+        pids = NULL;
+        free(redir_fds);
+        redir_fds = NULL;
         for (i = 0; i < block_count; i++) {
             free(commands[i]);
             commands[i] = NULL;
         }
         free(commands);
         commands = NULL;
-        free(pids);
-        pids = NULL;
-        free(redir_fds);
-        redir_fds = NULL;
         /* ---------------------------------------------- */
         if (EOF_flag == 1) {
             printf("EOF is reached.\n");
@@ -329,8 +329,8 @@ char ***sep_cmd(char *string, int block_count, int *counts) {
     if (separated_blocks == NULL) {
         fprintf(stderr, "sep_cmd error: could't allocate the memory for separated blocks.\n");
         free(solid_blocks);
-        free(string);
         solid_blocks = NULL;
+        free(string);
         return NULL;
     }
     for (number = 0; number < block_count; number++) {
@@ -394,11 +394,11 @@ int check_for_redir(char **cmds, int *cmd_amount, int *redir) {
                 if (!check_for_synt(cmds[j])) {
                     temp = creat(cmds[j], 0666);
                     if (temp == -1) {
-                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j]);
                         return 1; 
                     }
                 } else {
-                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j]);
                     return 1;
                 }
             }
@@ -414,11 +414,11 @@ int check_for_redir(char **cmds, int *cmd_amount, int *redir) {
                 if (!check_for_synt(cmds[j])) {
                     temp = creat(cmds[j], 0666);
                     if (temp == -1) {
-                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j]);
                         return 1; 
                     }
                 } else {
-                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j]);
                     return 1;
                 }
             }
@@ -431,7 +431,7 @@ int check_for_redir(char **cmds, int *cmd_amount, int *redir) {
             (*cmd_amount)--;
             temp = open(cmds[j], O_RDWR);
             if (temp == -1) {
-                fprintf(stderr, "Redir error: couldn't open \'%s\' directory.\n", cmds[j + 1]);
+                fprintf(stderr, "Redir error: couldn't open \'%s\' directory.\n", cmds[j]);
                 return 1;
             }
             delete_excess(&cmds, *cmd_amount, j);
@@ -446,11 +446,11 @@ int check_for_redir(char **cmds, int *cmd_amount, int *redir) {
                 if (!check_for_synt(cmds[j])) {
                     temp = creat(cmds[j], 0666);
                     if (temp == -1) {
-                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                        fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j]);
                         return 1; 
                     }
                 } else {
-                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j + 1]);
+                    fprintf(stderr, "Redir error: couldn't open or create \'%s\' directory.\n", cmds[j]);
                     return 1;
                 }
             }
