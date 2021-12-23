@@ -11,6 +11,7 @@
 #define LINE_SIZE 30
 
 int EOF_flag = 0;
+volatile sig_atomic_t flagC = 0, flagZ = 0;
 
 char *get_line(int, int*);
 char ***sep_cmd(char *, int, int*);
@@ -18,6 +19,10 @@ int word_count(char *);
 int check_for_redir(char **, int*, int*);
 int check_for_synt(char *);
 void delete_excess(char ***, int, int);
+void hndlr1(int);
+void hndlr2(int);
+void exec_pwd(void);
+void exec_cd(char *);
 
 int main() {
     pid_t *pids;
@@ -28,6 +33,8 @@ int main() {
     char ***commands = NULL;
     int fd[2];
 
+    signal(SIGINT, hndlr1);
+    signal(SIGTSTP, hndlr2);
     while (1) {
         printf("$ ");
         string = get_line(LINE_SIZE, &block_count);
@@ -83,7 +90,11 @@ int main() {
             continue;
         }
         for (j = 0; j < block_count; j++) {
-            /* Обработка exit, pwd, cd и самодельных команд. Пока что это происходит в отце */
+            if (flagC || flagZ) {
+                flagC = 0;
+                flagZ = 0;
+            }
+            /* Обработка exit и cd ----------------------------------- */
             if (strcmp(commands[j][0], "exit") == 0) {
                 free(pids);
                 pids = NULL;
@@ -101,6 +112,10 @@ int main() {
                 commands = NULL;
                 printf("\nAborted due to exit.\n");
                 exit(0);
+            } 
+            if (strcmp(commands[j][0], "cd") == 0) {
+                exec_cd(commands[j][1]);
+                continue;
             }
             /* ----------------------------------------------------- */
 
@@ -110,6 +125,8 @@ int main() {
             }
             pids[j] = fork(); /* stdin - 0, stdout - 1, stderr - 2 */
             if (pids[j] == 0) {
+                signal(SIGINT, SIG_DFL);
+                signal(SIGTSTP, SIG_DFL);
                 if (j != block_count - 1) /* Все кроме последнего отправляют свой вывод в пайп */
                     dup2(fd[1], 1);
                 if (j > 0) /* Все кроме первого берут свой ввод из пайпа */
@@ -147,8 +164,12 @@ int main() {
                 counts = NULL;
                 close(fd[0]);
                 close(fd[1]); 
-                execvp(commands[j][0], commands[j]);
-                fprintf(stderr, "Command \'%s\' not found.\n", commands[j][0]);
+                if (strcmp(commands[j][0], "pwd") == 0)
+                    exec_pwd(); 
+                else {
+                    execvp(commands[j][0], commands[j]);
+                    fprintf(stderr, "Command \'%s\' not found.\n", commands[j][0]);
+                }
                 free(string);
                 string = NULL;
                 for (i = 0; i < block_count; i++) {
@@ -160,9 +181,23 @@ int main() {
                 exit(1);
             } 
             /* Father */
+            waitpid(-1, NULL, WUNTRACED);
+            if (flagC) {
+                flagC = 0;
+                printf("\nProcess PID:%d aborted. ", pids[j]);
+                for (i = 0; i < counts[j]; i++)
+                    printf("%s ", commands[j][i]);
+                printf("\n");
+            }
+            if (flagZ) {
+                flagZ = 0;
+                printf("\nProcess PID:%d stopped. ", pids[j]);
+                for (i = 0; i < counts[j]; i++)
+                    printf("%s ", commands[j][i]);
+                printf("\n");
+            }
             input = fd[0];
             close(fd[1]);
-            wait(NULL);
         } /* for */
 
         /* Все отработало гладко, осталось все освободить */
@@ -302,7 +337,6 @@ char *get_line(int line_size, int *block_count) {
     return the_string;
 }
 
-/* Akkuratno vse razdelyaem */
 char ***sep_cmd(char *string, int block_count, int *counts) {
     char **solid_blocks = NULL;
     char **separated_block = NULL;
@@ -473,4 +507,28 @@ void delete_excess(char ***cmds, int length, int count){
     for (j = count; j < length; j++){
         (*cmds)[j] = (*cmds)[j + 1];
     }
+}
+
+void hndlr1(int n) {
+    flagC = 1;
+    signal(SIGINT, hndlr1);
+}
+
+void hndlr2(int n) {
+    flagZ = 1;
+    signal(SIGTSTP, hndlr2);
+}
+
+void exec_pwd(void) {
+    char cwd[1024];
+
+    getcwd(cwd, sizeof(cwd));
+    printf("PWD: %s\n", cwd);
+    return;
+}
+
+void exec_cd(char *dir) {
+    if (chdir(dir) != 0)
+        fprintf(stderr, "Couldn't change the directory.\n");
+    return;
 }

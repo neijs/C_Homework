@@ -1,0 +1,2 @@
+ 21  21 138
+PWD: /home/neijs/code_storage/shell
