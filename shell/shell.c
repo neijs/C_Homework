@@ -181,7 +181,7 @@ int main() {
                 exit(1);
             } 
             /* Father */
-            waitpid(-1, NULL, WUNTRACED);
+            waitpid(pids[j], NULL, WUNTRACED);
             if (flagC) {
                 flagC = 0;
                 printf("\nProcess PID:%d aborted. ", pids[j]);
